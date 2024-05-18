@@ -21,6 +21,7 @@ list(APPEND SOURCE
     utils/partinfo.c
     utils/partlist.c
     utils/regutil.c
+    utils/vollist.c
     bootcode.c
     bootsup.c
     fsutil.c
