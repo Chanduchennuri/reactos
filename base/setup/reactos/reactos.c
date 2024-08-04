@@ -368,10 +368,10 @@ TypeDlgProc(
 
                 case PSN_QUERYCANCEL:
                 {
-                    if (MessageBoxW(GetParent(hwndDlg),
-                                    pSetupData->szAbortMessage,
-                                    pSetupData->szAbortTitle,
-                                    MB_YESNO | MB_ICONQUESTION) == IDYES)
+                    if (DisplayMessage(GetParent(hwndDlg),
+                                       MB_YESNO | MB_ICONQUESTION,
+                                       MAKEINTRESOURCEW(IDS_ABORTSETUP2),
+                                       MAKEINTRESOURCEW(IDS_ABORTSETUP)) == IDYES)
                     {
                         /* Go to the Terminate page */
                         PropSheet_SetCurSelByID(GetParent(hwndDlg), IDD_RESTARTPAGE);
@@ -802,10 +802,10 @@ UpgradeRepairDlgProc(
 
                 case PSN_QUERYCANCEL:
                 {
-                    if (MessageBoxW(GetParent(hwndDlg),
-                                    pSetupData->szAbortMessage,
-                                    pSetupData->szAbortTitle,
-                                    MB_YESNO | MB_ICONQUESTION) == IDYES)
+                    if (DisplayMessage(GetParent(hwndDlg),
+                                       MB_YESNO | MB_ICONQUESTION,
+                                       MAKEINTRESOURCEW(IDS_ABORTSETUP2),
+                                       MAKEINTRESOURCEW(IDS_ABORTSETUP)) == IDYES)
                     {
                         /* Go to the Terminate page */
                         PropSheet_SetCurSelByID(GetParent(hwndDlg), IDD_RESTARTPAGE);
@@ -911,10 +911,10 @@ DeviceDlgProc(
 
                 case PSN_QUERYCANCEL:
                 {
-                    if (MessageBoxW(GetParent(hwndDlg),
-                                    pSetupData->szAbortMessage,
-                                    pSetupData->szAbortTitle,
-                                    MB_YESNO | MB_ICONQUESTION) == IDYES)
+                    if (DisplayMessage(GetParent(hwndDlg),
+                                       MB_YESNO | MB_ICONQUESTION,
+                                       MAKEINTRESOURCEW(IDS_ABORTSETUP2),
+                                       MAKEINTRESOURCEW(IDS_ABORTSETUP)) == IDYES)
                     {
                         /* Go to the Terminate page */
                         PropSheet_SetCurSelByID(GetParent(hwndDlg), IDD_RESTARTPAGE);
@@ -1108,10 +1108,10 @@ SummaryDlgProc(
 
                 case PSN_QUERYCANCEL:
                 {
-                    if (MessageBoxW(GetParent(hwndDlg),
-                                    pSetupData->szAbortMessage,
-                                    pSetupData->szAbortTitle,
-                                    MB_YESNO | MB_ICONQUESTION) == IDYES)
+                    if (DisplayMessage(GetParent(hwndDlg),
+                                       MB_YESNO | MB_ICONQUESTION,
+                                       MAKEINTRESOURCEW(IDS_ABORTSETUP2),
+                                       MAKEINTRESOURCEW(IDS_ABORTSETUP)) == IDYES)
                     {
                         /* Go to the Terminate page */
                         PropSheet_SetCurSelByID(GetParent(hwndDlg), IDD_RESTARTPAGE);
@@ -1240,9 +1240,9 @@ FsVolCallback(
         case STATUS_PARTITION_FAILURE:
         {
             // ERROR_WRITE_PTABLE
-            DisplayMessage(NULL, MB_ICONERROR | MB_OK,
-                           L"Error",
-                           L"Setup failed to write partition tables.");
+            DisplayError(NULL,
+                         0, // Default to "Error"
+                         IDS_ERROR_WRITE_PTABLE);
             // FsVolContext->NextPageOnAbort = QUIT_PAGE;
             // TODO: Go back to the partitioning page?
             break;
@@ -1258,13 +1258,9 @@ FsVolCallback(
             // or use an external drive as the system drive/partition
             // (e.g. floppy, USB drive, etc...)
             //
-            DisplayMessage(NULL, MB_ICONERROR | MB_OK,
-                           L"Error",
-                           L"The ReactOS Setup could not find a supported system partition\n"
-                           L"on your system or could not create a new one. Without such partition\n"
-                           L"the Setup program cannot install ReactOS.\n"
-                           L"Press OK to return to the partition selection list.");
-
+            DisplayError(NULL,
+                         0, // Default to "Error"
+                         IDS_ERROR_SYSTEM_PARTITION);
             // FsVolContext->NextPageOnAbort = SELECT_PARTITION_PAGE;
             // TODO: Go back to the partitioning page
             break;
@@ -1333,9 +1329,9 @@ FsVolCallback(
         if (FmtInfo->ErrorStatus == STATUS_PARTITION_FAILURE)
         {
             // ERROR_WRITE_PTABLE
-            DisplayMessage(NULL, MB_ICONERROR | MB_OK,
-                           L"Error",
-                           L"Setup failed to write partition tables.");
+            DisplayError(NULL,
+                         0, // Default to "Error"
+                         IDS_ERROR_WRITE_PTABLE);
             // FsVolContext->NextPageOnAbort = QUIT_PAGE;
             // TODO: Go back to the partitioning page?
             return FSVOL_ABORT;
@@ -1345,9 +1341,9 @@ FsVolCallback(
         {
             /* FIXME: show an error dialog */
             // MUIDisplayError(ERROR_FORMATTING_PARTITION, Ir, POPUP_WAIT_ANY_KEY, PathBuffer);
-            DisplayMessage(NULL, MB_ICONERROR | MB_OK,
-                           L"Error",
-                           L"Unrecognized volume while attempting to format the partition.");
+            DisplayError(NULL,
+                         0, // Default to "Error"
+                         IDS_ERROR_FORMAT_UNRECOGNIZED_VOLUME);
             // FsVolContext->NextPageOnAbort = QUIT_PAGE;
             return FSVOL_ABORT;
         }
@@ -1357,11 +1353,8 @@ FsVolCallback(
             INT nRet;
 
             nRet = DisplayMessage(NULL, MB_ICONERROR | MB_OKCANCEL,
-                                  L"Error",
-                                  L"Setup is currently unable to format a partition in %s.\n"
-                                  L"\n"
-                                  L"  \x07  Press OK to continue Setup.\n"
-                                  L"  \x07  Press Cancel to quit Setup.",
+                                  NULL, // Default to "Error"
+                                  MAKEINTRESOURCEW(IDS_ERROR_COULD_NOT_FORMAT),
                                   FmtInfo->FileSystemName);
             if (nRet == IDCANCEL)
             {
@@ -1380,10 +1373,10 @@ FsVolCallback(
             DPRINT1("FormatPartition() failed with status 0x%08lx\n", FmtInfo->ErrorStatus);
 
             // ERROR_FORMATTING_PARTITION
-            DisplayMessage(NULL, MB_ICONERROR | MB_OK,
-                           L"Error",
-                           L"Setup is unable to format the partition:\n %s\n",
-                           FmtInfo->Volume->Info.DeviceName);
+            DisplayError(NULL,
+                         0, // Default to "Error"
+                         IDS_ERROR_FORMATTING_PARTITION,
+                         FmtInfo->Volume->Info.DeviceName);
             // FsVolContext->NextPageOnAbort = QUIT_PAGE;
             return FSVOL_ABORT;
         }
@@ -1400,11 +1393,8 @@ FsVolCallback(
             INT nRet;
 
             nRet = DisplayMessage(NULL, MB_ICONERROR | MB_OKCANCEL,
-                                  L"Error",
-                                  L"Setup is currently unable to check a partition formatted in %s.\n"
-                                  L"\n"
-                                  L"  \x07  Press ENTER to continue Setup.\n"
-                                  L"  \x07  Press F3 to quit Setup.",
+                                  NULL, // Default to "Error"
+                                  MAKEINTRESOURCEW(IDS_ERROR_COULD_NOT_CHECK),
                                   ChkInfo->Volume->Info.FileSystem);
             if (nRet == IDCANCEL)
             {
@@ -1420,10 +1410,10 @@ FsVolCallback(
         {
             DPRINT1("ChkdskPartition() failed with status 0x%08lx\n", ChkInfo->ErrorStatus);
 
-            DisplayMessage(NULL, MB_ICONERROR | MB_OK,
-                           L"Error",
-                           L"ChkDsk detected some disk errors.\n(Status 0x%08lx).\n",
-                           ChkInfo->ErrorStatus);
+            DisplayError(NULL,
+                         0, // Default to "Error"
+                         IDS_ERROR_CHECKING_PARTITION,
+                         ChkInfo->ErrorStatus);
             return FSVOL_SKIP;
         }
 
@@ -1455,7 +1445,7 @@ FsVolCallback(
         if (FmtInfo->Volume->Info.DriveLetter)
         {
             StringCchPrintfW(Buffer, ARRAYSIZE(Buffer),
-                             L"Formatting volume %c: (%s) in %s...",
+                             L"Formatting volume %c: (%s) in %s...", // IDS_FORMATTING_PROGRESS1
                              FmtInfo->Volume->Info.DriveLetter,
                              FmtInfo->Volume->Info.DeviceName,
                              VolCreate->FileSystemName);
@@ -1463,7 +1453,7 @@ FsVolCallback(
         else
         {
             StringCchPrintfW(Buffer, ARRAYSIZE(Buffer),
-                             L"Formatting volume %s in %s...",
+                             L"Formatting volume %s in %s...", // IDS_FORMATTING_PROGRESS2
                              FmtInfo->Volume->Info.DeviceName,
                              VolCreate->FileSystemName);
         }
@@ -1520,14 +1510,14 @@ FsVolCallback(
         if (ChkInfo->Volume->Info.DriveLetter)
         {
             StringCchPrintfW(Buffer, ARRAYSIZE(Buffer),
-                             L"Checking volume %c: (%s)...",
+                             L"Checking volume %c: (%s)...", // IDS_CHECKING_PROGRESS1
                              ChkInfo->Volume->Info.DriveLetter,
                              ChkInfo->Volume->Info.DeviceName);
         }
         else
         {
             StringCchPrintfW(Buffer, ARRAYSIZE(Buffer),
-                             L"Checking volume %s...",
+                             L"Checking volume %s...", // IDS_CHECKING_PROGRESS2
                              ChkInfo->Volume->Info.DeviceName);
         }
         SetDlgItemTextW(UiContext.hwndDlg, IDC_ITEM, Buffer);
@@ -1974,10 +1964,10 @@ ProcessDlgProc(
                     /* Halt the on-going file copy */
                     ResetEvent(pSetupData->hHaltInstallEvent);
 
-                    if (MessageBoxW(GetParent(hwndDlg),
-                                    pSetupData->szAbortMessage,
-                                    pSetupData->szAbortTitle,
-                                    MB_YESNO | MB_ICONQUESTION) == IDYES)
+                    if (DisplayMessage(GetParent(hwndDlg),
+                                       MB_YESNO | MB_ICONQUESTION,
+                                       MAKEINTRESOURCEW(IDS_ABORTSETUP2),
+                                       MAKEINTRESOURCEW(IDS_ABORTSETUP)) == IDYES)
                     {
                         /* Stop the file copy thread */
                         pSetupData->bStopInstall = TRUE;
@@ -2614,10 +2604,6 @@ _tWinMain(HINSTANCE hInst,
         goto Quit;
 
     hHotkeyThread = CreateThread(NULL, 0, HotkeyThread, NULL, 0, NULL);
-
-    /* Cache commonly-used strings */
-    LoadStringW(hInst, IDS_ABORTSETUP, SetupData.szAbortMessage, ARRAYSIZE(SetupData.szAbortMessage));
-    LoadStringW(hInst, IDS_ABORTSETUP2, SetupData.szAbortTitle, ARRAYSIZE(SetupData.szAbortTitle));
 
     /* Whenever any of the common controls are used in your app,
      * you must call InitCommonControlsEx() to register the classes
